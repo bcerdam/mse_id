@@ -27,16 +27,14 @@ def plot_arrays(data_list, title='', xlabel='', ylabel='', legends=None, save_pa
     plt.show()
 
 def calculate_csv_std(folder_path):
-    unique_values = []
+    unique_values = set()
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
             file_path = os.path.join(folder_path, filename)
             df = pd.read_csv(file_path, header=None)
-            unique_values.extend(np.unique(df.values.astype(float)))
-    unique_values = np.array(unique_values).astype(float)
+            unique_values.update(np.unique(df.values.astype(float)))
+    unique_values = np.array(list(unique_values)).astype(float)
     return np.std(unique_values)
-
-
 
 def run_c_program(csv_path, scales, m, r):
     num_files = len([f for f in os.listdir(csv_path) if f.endswith('.csv')])
@@ -48,6 +46,7 @@ def run_c_program(csv_path, scales, m, r):
         csv_cols = len(next(reader))
 
     r_std = calculate_csv_std(csv_path) * r
+    print(r, calculate_csv_std(csv_path), r_std)
     command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std)]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').strip()
