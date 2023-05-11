@@ -4,6 +4,17 @@
 #include <string.h>
 #include <dirent.h>
 
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int cmp_string(const void* a, const void* b) {
+    const char** ia = (const char**)a;
+    const char** ib = (const char**)b;
+    return strcmp(*ia, *ib);
+}
+
 double*** read_csv(const char* folder_path, int num_files, int rows, int cols) {
     double*** data_array = (double***)malloc(num_files * sizeof(double**));
 
@@ -12,47 +23,62 @@ double*** read_csv(const char* folder_path, int num_files, int rows, int cols) {
     struct dirent* ent;
     if ((dir = opendir(folder_path)) != NULL) {
         int file_count = 0;
+        char** file_names = (char**)malloc(num_files * sizeof(char*));
         while ((ent = readdir(dir)) != NULL) {
             // Only process CSV files
             if (strstr(ent->d_name, ".csv") != NULL) {
-                char file_path[1024];
-                snprintf(file_path, sizeof(file_path), "%s/%s", folder_path, ent->d_name);
-                FILE* file = fopen(file_path, "r");
-                if (file == NULL) {
-                    printf("Could not open file: %s\n", file_path);
-                    return NULL;
-                }
-                char line[1024];
-
-                // Allocate memory for the data array
-                double** data = (double**)malloc(rows * sizeof(double*));
-                for (int i = 0; i < rows; i++) {
-                    data[i] = (double*)malloc(cols * sizeof(double));
-                }
-
-                // Read the data into the array
-                int row = 0;
-                while (fgets(line, 1024, file)) {
-                    int col = 0;
-                    char* token = strtok(line, ",");
-                    while (token != NULL) {
-                        data[row][col] = atof(token);
-                        col++;
-                        token = strtok(NULL, ",");
-                    }
-                    row++;
-                }
-                fclose(file);
-                data_array[file_count++] = data;
+                file_names[file_count] = strdup(ent->d_name);
+                file_count++;
             }
         }
         closedir(dir);
+
+        qsort(file_names, file_count, sizeof(char*), cmp_string);
+
+        for (int i = 0; i < file_count; i++) {
+            char file_path[1024];
+            snprintf(file_path, sizeof(file_path), "%s/%s", folder_path, file_names[i]);
+            FILE* file = fopen(file_path, "r");
+            if (file == NULL) {
+                printf("Could not open file: %s\n", file_path);
+                return NULL;
+            }
+            char line[1024];
+
+            // Allocate memory for the data array
+            double** data = (double**)malloc(rows * sizeof(double*));
+            for (int i = 0; i < rows; i++) {
+                data[i] = (double*)malloc(cols * sizeof(double));
+            }
+
+            // Read the data into the array
+            int row = 0;
+            while (fgets(line, 1024, file)) {
+                int col = 0;
+                char* token = strtok(line, ",");
+                while (token != NULL) {
+                    data[row][col] = atof(token);
+                    col++;
+                    token = strtok(NULL, ",");
+                }
+                row++;
+            }
+            fclose(file);
+            data_array[i] = data;
+        }
+
+        for (int i = 0; i < file_count; i++) {
+            free(file_names[i]);
+        }
+        free(file_names);
+
     } else {
         printf("Could not open folder: %s\n", folder_path);
         return NULL;
     }
     return data_array;
 }
+
 
 double*** coarse_graining(double*** list_of_matrices, int num_matrices, int scale, int rows, int cols) {
     if (scale == 1){
@@ -69,7 +95,7 @@ double*** coarse_graining(double*** list_of_matrices, int num_matrices, int scal
                 for (int s = i * scale; s < (i + 1) * scale && s < num_matrices; s++) {
                     sum += list_of_matrices[s][j][k];
                 }
-                new_list_of_matrices[i][j][k] = (int)round(sum / scale);
+                new_list_of_matrices[i][j][k] = (sum / scale);
             }
         }
     }
@@ -171,7 +197,7 @@ int main(int argc, char *argv[]) {
     int rows = atoi(argv[4]);
     int cols = atoi(argv[5]);
     int m = atoi(argv[6]);
-    int r = atoi(argv[7]);
+    double r = atof(argv[7]);
 
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
@@ -189,8 +215,8 @@ int main(int argc, char *argv[]) {
     }
     printf("\n");
 
-    // double*** coarse_data = coarse_graining(list_of_matrices, num_files, 20, rows, cols);
-    // for (int i = 0; i < num_files/20; i++) {
+    // double*** coarse_data = coarse_graining(list_of_matrices, num_files, scales, rows, cols);
+    // for (int i = 0; i < num_files/scales; i++) {
     //     printf("Matrix %d:\n", i+1);
     //     for (int j = 0; j < rows; j++) {
     //         for (int k = 0; k < cols; k++) {
