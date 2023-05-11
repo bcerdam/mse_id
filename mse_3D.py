@@ -46,7 +46,6 @@ def run_c_program(csv_path, scales, m, r):
         csv_cols = len(next(reader))
 
     r_std = calculate_csv_std(csv_path) * r
-    print(r, calculate_csv_std(csv_path), r_std)
     command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std)]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').strip()
