@@ -137,8 +137,8 @@ float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, d
                     continue;
                 }
                 if (dist <= r) {
-                    count++;
-                    // count += fuzzy_membership(dist, r);
+                    // count++;
+                    count += fuzzy_membership(dist, r);
                 }
             }
         }
@@ -157,8 +157,8 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
                     continue;
                 }
                 if (dist <= r) {
-                    count++;
-                    // count += fuzzy_membership(dist, r);
+                    // count++;
+                    count += fuzzy_membership(dist, r);
                 }
             }
         }
