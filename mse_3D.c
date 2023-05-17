@@ -137,8 +137,8 @@ float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, d
                     continue;
                 }
                 if (dist <= r) {
-                    // count++;
-                    count += fuzzy_membership(dist, r);
+                    count++;
+                    // count += fuzzy_membership(dist, r);
                 }
             }
         }
@@ -152,13 +152,13 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
     for (int c = 0; c < T - m; c++){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
-                double dist = max_distance(m, list_of_matrices, i, j, k, a, b, c);
+                double dist = max_distance(m+1, list_of_matrices, i, j, k, a, b, c);
                 if (a == i && b == j && c == k) {
                     continue;
                 }
                 if (dist <= r) {
-                    // count++;
-                    count += fuzzy_membership(dist, r);
+                    count++;
+                    // count += fuzzy_membership(dist, r);
                 }
             }
         }
@@ -179,7 +179,6 @@ float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, i
 }
 
 float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T) {
-    m += 1;
     double sum = 0.0;
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
