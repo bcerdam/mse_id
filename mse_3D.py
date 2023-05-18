@@ -36,7 +36,7 @@ def calculate_csv_std(folder_path):
     unique_values = np.array(list(unique_values)).astype(float)
     return np.std(unique_values)
 
-def run_c_program(csv_path, scales, m, r, fuzzy):
+def run_c_program(csv_path, scales, m, r, n, delta, fuzzy):
     num_files = len([f for f in os.listdir(csv_path) if f.endswith('.csv')])
     csv_file = os.path.join(csv_path, os.listdir(csv_path)[0])
     with open(csv_file, 'r') as f:
@@ -46,7 +46,7 @@ def run_c_program(csv_path, scales, m, r, fuzzy):
         csv_cols = len(next(reader))
 
     r_std = calculate_csv_std(csv_path) * r
-    command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std), str(fuzzy)]
+    command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std), str(n), str(delta), str(fuzzy)]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').strip()
     n_values = list(output.split())
@@ -54,7 +54,7 @@ def run_c_program(csv_path, scales, m, r, fuzzy):
     return n_values
 
 
-def mse_3D(folder_path, scales, m, r, fuzzy=False):
+def mse_3D(folder_path, scales, m, r, n, delta, fuzzy=False):
     if fuzzy == False:
         fuzzy = 0
     elif fuzzy == True:
@@ -65,7 +65,7 @@ def mse_3D(folder_path, scales, m, r, fuzzy=False):
         print('Working on: ', filename)
         start_time = time.time()
 
-        mse_values.append([filename, run_c_program(file_path, scales, m, r, fuzzy)])
+        mse_values.append([filename, run_c_program(file_path, scales, m, r, n, delta, fuzzy)])
 
         end_time = time.time()
         execution_time = end_time - start_time

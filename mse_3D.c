@@ -102,12 +102,12 @@ double*** coarse_graining(double*** list_of_matrices, int num_matrices, int scal
     return new_list_of_matrices;
 }
 
-double fuzzy_membership(double distance, double r) {
+double fuzzy_membership(double distance, double r, int n, double delta) {
     if (r == 0){
         return 1;
     }
     else{
-        return expf(-powf(distance, 2.0) / powf(r, 2.0));
+        return expf(powf(distance, 2.0) * log(delta) / powf(r, 2.0));
     }
 }
 
@@ -126,7 +126,7 @@ double max_distance(int m, double ***list_of_matrices, int i, int j, int k, int 
     return max_dist;
 }
 
-float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, int fuzzy) {
+float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, int n, double delta, int fuzzy) {
     double count = 0;
     int N_m = (H - m) * (W - m) * (T - m);
     for (int c = 0; c < T - m; c++){
@@ -143,7 +143,7 @@ float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, d
                         }
                     }
                     else if (fuzzy == 1){
-                        count += fuzzy_membership(dist, r);
+                        count += fuzzy_membership(dist, r, n, delta);
                     }
                 }
             }
@@ -152,7 +152,7 @@ float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, d
     return (float) count / (N_m-1);
 }
 
-float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, int fuzzy) {
+float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, int n, double delta, int fuzzy) {
     double count = 0;
     int N_m = (H - m) * (W - m) * (T - m);
     for (int c = 0; c < T - m; c++){
@@ -169,7 +169,7 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
                         }
                     }
                     else if (fuzzy == 1){
-                        count += fuzzy_membership(dist, r);
+                        count += fuzzy_membership(dist, r, n, delta);
                     }
                 }
             }
@@ -178,24 +178,24 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
     return (float) count / (N_m-1);
 }
 
-float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, int fuzzy) {
+float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, int n, double delta, int fuzzy) {
     double sum = 0.0;
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
-                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, fuzzy);
+                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, n, delta, fuzzy);
             }
         }
     }
     return sum / ((H - m) * (W - m) * (T - m));
 }
 
-float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T, int fuzzy) {
+float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T, int n, double delta, int fuzzy) {
     double sum = 0.0;
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
-                sum += calculate_U_ij_m_plus_one(list_of_matrices, i, j, k, m, r, H, W, T, fuzzy);
+                sum += calculate_U_ij_m_plus_one(list_of_matrices, i, j, k, m, r, H, W, T, n, delta, fuzzy);
             }
         }
     }
@@ -221,15 +221,17 @@ int main(int argc, char *argv[]) {
     int cols = atoi(argv[5]);
     int m = atoi(argv[6]);
     double r = atof(argv[7]);
-    int fuzzy = atoi(argv[8]);
+    int n = atoi(argv[8]);
+    double delta = atof(argv[9]);
+    int fuzzy = atoi(argv[10]);
 
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
 
     for (int i = 1; i <= scales; i++) {
         double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
-        float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, fuzzy);
-        float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, fuzzy);
+        float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, n, delta, fuzzy);
+        float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, n, delta, fuzzy);
         float n = negative_logarithm(U_m, U_m_plus_one);
         n_values[i-1] = n;
     }
