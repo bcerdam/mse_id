@@ -107,7 +107,7 @@ double fuzzy_membership(double distance, double r, int n, double delta) {
         return 1;
     }
     else{
-        return expf(powf(distance, 2.0) * log(delta) / powf(r, 2.0));
+        return expf(powf(distance, n) * log(delta) / powf(r, 2.0));
     }
 }
 
