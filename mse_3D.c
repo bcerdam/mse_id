@@ -3,11 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <omp.h>
 
 int cmp_string(const void* a, const void* b) {
     const char** ia = (const char**)a;
@@ -180,6 +176,7 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
 
 float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy) {
     double sum = 0.0;
+    #pragma omp parallel for reduction(+:sum) num_threads(32)
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
@@ -187,11 +184,18 @@ float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, i
             }
         }
     }
-    return sum / ((H - m) * (W - m) * (T - m));
+    #pragma omp barrier
+    float average;
+    #pragma omp critical
+    {
+        average = sum / ((H - m) * (W - m) * (T - m));
+    }
+    return average;
 }
 
 float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy) {
     double sum = 0.0;
+    #pragma omp parallel for reduction(+:sum) num_threads(32)
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
@@ -199,7 +203,13 @@ float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H,
             }
         }
     }
-    return sum / ((H - m) * (W - m) * (T - m));
+    #pragma omp barrier
+    float average;
+    #pragma omp critical
+    {
+        average = sum / ((H - m) * (W - m) * (T - m));
+    }
+    return average;
 }
 
 float negative_logarithm(float um, float umplus1) {
@@ -240,22 +250,5 @@ int main(int argc, char *argv[]) {
     }
     printf("\n");
 
-    // double*** coarse_data = coarse_graining(list_of_matrices, num_files, scales, rows, cols);
-    // for (int i = 0; i < num_files/scales; i++) {
-    //     printf("Matrix %d:\n", i+1);
-    //     for (int j = 0; j < rows; j++) {
-    //         for (int k = 0; k < cols; k++) {
-    //             printf("%lf ", coarse_data[i][j][k]);
-    //         }
-    //         printf("\n");
-    //     }
-    //     printf("\n");
-    // }
-
     return 0;
 }
-
-/*
-gcc mse_3D.c -o mse_3D -lm
-./mse_3D
-*/

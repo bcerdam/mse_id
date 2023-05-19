@@ -88,7 +88,7 @@ def mse_3D(folder_path, scales, m, r, delta, fuzzy=False):
 # En el ejemplo de abajo son 100 frames chicas de 10x10, por eso hay que ponerle m=1 y r=0.5.
 
 # IMPORTANTE: Hay que cambiar el path de datos_csv al de tu computador y compilar de nuevo
-# Compilar con este comando en la terminal del repo: gcc mse_3D.c -o mse_3D -lm
+# Compilar con este comando en la terminal del repo: gcc -o mse_3D mse_3D.c -lm -fopenmp
 
 # v = mse_3D('Datos/10x10x100/datos_csv', 30, 1, 0.5, 0.8, fuzzy=False)
 # plot_arrays(v)
