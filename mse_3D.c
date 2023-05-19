@@ -233,16 +233,48 @@ int main(int argc, char *argv[]) {
     double r = atof(argv[7]);
     double delta = atof(argv[8]);
     int fuzzy = atoi(argv[9]);
+    int composite = atoi(argv[10]);
 
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
 
-    for (int i = 1; i <= scales; i++) {
-        double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
-        float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, delta, fuzzy);
-        float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, delta, fuzzy);
-        float n = negative_logarithm(U_m, U_m_plus_one);
-        n_values[i-1] = n;
+    for (int i = 1; i <= scales; i++) { 
+        if (composite == 1) {
+            double average = 0.0;
+            int coarse_grained_n = num_files % i; 
+            double* n_coarse_values = malloc((coarse_grained_n + 1) * sizeof(double));
+            
+            for (int j = 0; j <= coarse_grained_n; j++) { 
+                double*** remaining_array = malloc((num_files - j) * sizeof(double**)); 
+                int contador = 0;
+
+                for (int k = j; k < num_files; k++) { 
+                    remaining_array[contador] = list_of_matrices[k]; 
+                    contador += 1;
+                }
+
+                double*** coarse_data = coarse_graining(remaining_array, (num_files - j), i, rows, cols); 
+                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy);
+                float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy);
+                float n = negative_logarithm(U_m, U_m_plus_one);
+                n_coarse_values[j] = n; // guarda dato
+            }
+
+            for (int z = 0; z <= coarse_grained_n; z++) { 
+                average += n_coarse_values[z]; 
+            }
+            average /= (coarse_grained_n + 1);
+            n_values[i - 1] = average;
+
+        }
+
+        else{
+            double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
+            float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, delta, fuzzy);
+            float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, delta, fuzzy);
+            float n = negative_logarithm(U_m, U_m_plus_one);
+            n_values[i-1] = n;
+        }
     }
 
     for (int i = 0; i < scales; i++) {

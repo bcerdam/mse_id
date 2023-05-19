@@ -36,7 +36,7 @@ def calculate_csv_std(folder_path):
     unique_values = np.array(list(unique_values)).astype(float)
     return np.std(unique_values)
 
-def run_c_program(csv_path, scales, m, r, delta, fuzzy):
+def run_c_program(csv_path, scales, m, r, delta, fuzzy, composite):
     num_files = len([f for f in os.listdir(csv_path) if f.endswith('.csv')])
     csv_file = os.path.join(csv_path, os.listdir(csv_path)[0])
     with open(csv_file, 'r') as f:
@@ -46,7 +46,7 @@ def run_c_program(csv_path, scales, m, r, delta, fuzzy):
         csv_cols = len(next(reader))
 
     r_std = calculate_csv_std(csv_path) * r
-    command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std), str(delta), str(fuzzy)]
+    command = ['./mse_3D', csv_path, str(num_files), str(scales), str(csv_rows), str(csv_cols), str(m), str(r_std), str(delta), str(fuzzy), str(composite)]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').strip()
     n_values = list(output.split())
@@ -54,18 +54,23 @@ def run_c_program(csv_path, scales, m, r, delta, fuzzy):
     return n_values
 
 
-def mse_3D(folder_path, scales, m, r, delta, fuzzy=False):
+def mse_3D(folder_path, scales, m, r, delta, fuzzy=False, composite=False):
     if fuzzy == False:
         fuzzy = 0
     elif fuzzy == True:
         fuzzy = 1
+    if composite == False:
+        composite = 0
+    elif composite == True:
+        composite = 1
+
     mse_values = []
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
         print('Working on: ', filename)
         start_time = time.time()
 
-        mse_values.append([filename, run_c_program(file_path, scales, m, r, delta, fuzzy)])
+        mse_values.append([filename, run_c_program(file_path, scales, m, r, delta, fuzzy, composite)])
 
         end_time = time.time()
         execution_time = end_time - start_time
@@ -90,5 +95,5 @@ def mse_3D(folder_path, scales, m, r, delta, fuzzy=False):
 # IMPORTANTE: Hay que cambiar el path de datos_csv al de tu computador y compilar de nuevo
 # Compilar con este comando en la terminal del repo: gcc -o mse_3D mse_3D.c -lm -fopenmp
 
-# v = mse_3D('Datos/10x10x100/datos_csv', 30, 1, 0.5, 0.8, fuzzy=False)
+# v = mse_3D(folder_path='Datos/10x10x100/datos_csv', scales=30, m=1, r=0.5, delta=0.8, fuzzy=False, composite=False)
 # plot_arrays(v)
