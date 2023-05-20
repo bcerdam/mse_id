@@ -107,28 +107,43 @@ double fuzzy_membership(double distance, double r, double delta) {
     }
 }
 
-double max_distance(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c) {
-    double max_dist = 0;
-    for (int n = 0; n < m; n++){
-        for(int z = 0; z < m; z++) {
-            for(int l = 0; l < m; l++) {
-                double dist = fabs(list_of_matrices[k+n][i+z][j+l] - list_of_matrices[c+n][a+z][b+l]);
-                if(dist > max_dist) {
-                    max_dist = dist;
+double distance(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
+    if (distance_type == 0){
+        double max_dist = 0;
+        for (int n = 0; n < m; n++){
+            for(int z = 0; z < m; z++) {
+                for(int l = 0; l < m; l++) {
+                    double dist = fabs(list_of_matrices[k+n][i+z][j+l] - list_of_matrices[c+n][a+z][b+l]);
+                    if(dist > max_dist) {
+                        max_dist = dist;
+                    }
                 }
             }
         }
+        return max_dist;
     }
-    return max_dist;
+    else{
+        double sum_dist = 0;
+        for (int n = 0; n < m; n++){
+            for(int z = 0; z < m; z++) {
+                for(int l = 0; l < m; l++) {
+                    double dist = powf(fabs(list_of_matrices[k+n][i+z][j+l] - list_of_matrices[c+n][a+z][b+l]), distance_type);
+                    sum_dist += dist;
+                }
+            }
+        }
+        sum_dist = powf(sum_dist, (1.0/distance_type));
+        return sum_dist;
+    }
 }
 
-float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy) {
+float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type) {
     double count = 0;
     int N_m = (H - m) * (W - m) * (T - m);
     for (int c = 0; c < T - m; c++){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
-                double dist = max_distance(m, list_of_matrices, i, j, k, a, b, c);
+                double dist = distance(m, list_of_matrices, i, j, k, a, b, c, distance_type);
                 if (a == i && b == j && c == k) {
                     continue;
                 }
@@ -148,13 +163,13 @@ float calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, d
     return (float) count / (N_m-1);
 }
 
-float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy) {
+float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type) {
     double count = 0;
     int N_m = (H - m) * (W - m) * (T - m);
     for (int c = 0; c < T - m; c++){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
-                double dist = max_distance(m+1, list_of_matrices, i, j, k, a, b, c);
+                double dist = distance(m+1, list_of_matrices, i, j, k, a, b, c, distance_type);
                 if (a == i && b == j && c == k) {
                     continue;
                 }
@@ -174,13 +189,13 @@ float calculate_U_ij_m_plus_one(double ***list_of_matrices, int i, int j, int k,
     return (float) count / (N_m-1);
 }
 
-float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy) {
+float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type) {
     double sum = 0.0;
     #pragma omp parallel for reduction(+:sum) num_threads(32)
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
-                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy);
+                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy, distance_type);
             }
         }
     }
@@ -193,13 +208,13 @@ float calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, i
     return average;
 }
 
-float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy) {
+float calculate_U_m_plus_one(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type) {
     double sum = 0.0;
     #pragma omp parallel for reduction(+:sum) num_threads(32)
     for (int k = 0; k < T - m; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
-                sum += calculate_U_ij_m_plus_one(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy);
+                sum += calculate_U_ij_m_plus_one(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy, distance_type);
             }
         }
     }
@@ -234,6 +249,7 @@ int main(int argc, char *argv[]) {
     double delta = atof(argv[8]);
     int fuzzy = atoi(argv[9]);
     int composite = atoi(argv[10]);
+    int distance_type = atoi(argv[11]);
 
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
@@ -254,8 +270,8 @@ int main(int argc, char *argv[]) {
                 }
 
                 double*** coarse_data = coarse_graining(remaining_array, (num_files - j), i, rows, cols); 
-                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy);
-                float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy);
+                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type);
+                float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type);
                 float n = negative_logarithm(U_m, U_m_plus_one);
                 n_coarse_values[j] = n; // guarda dato
             }
@@ -270,8 +286,8 @@ int main(int argc, char *argv[]) {
 
         else{
             double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
-            float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, delta, fuzzy);
-            float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, delta, fuzzy);
+            float U_m = calculate_U_m(coarse_data, m ,r, cols, rows, num_files/i, delta, fuzzy, distance_type);
+            float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, num_files/i, delta, fuzzy, distance_type);
             float n = negative_logarithm(U_m, U_m_plus_one);
             n_values[i-1] = n;
         }
