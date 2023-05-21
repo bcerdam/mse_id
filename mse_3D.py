@@ -97,3 +97,6 @@ def mse_3D(folder_path, scales, m, r, delta, fuzzy=False, composite=False, dista
 
 # v = mse_3D(folder_path='Datos/10x10x100/datos_csv', scales=30, m=1, r=0.5, delta=0.8, fuzzy=False, composite=False, distance_type=0)
 # plot_arrays(v)
+
+varios = mse_3D(folder_path='/home/bcm/Desktop/Repo/c_mse_3D/Datos/misc_test/16x16x1000', scales=20, m=2, r=0.25, delta=0.9, fuzzy=True, composite=True, distance_type=0)
+i_n = mse_3D(folder_path='/home/bcm/Desktop/Repo/c_mse_3D/Datos/IN_test/datos_csv', scales=20, m=2, r=0.25, delta=0.9, fuzzy=True, composite=True, distance_type=0)
