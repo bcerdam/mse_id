@@ -250,6 +250,7 @@ int main(int argc, char *argv[]) {
     int fuzzy = atoi(argv[9]);
     int composite = atoi(argv[10]);
     int distance_type = atoi(argv[11]);
+    int refined = atoi(argv[12]);
 
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
@@ -259,6 +260,10 @@ int main(int argc, char *argv[]) {
             double average = 0.0;
             int coarse_grained_n = num_files % i; 
             double* n_coarse_values = malloc((coarse_grained_n + 1) * sizeof(double));
+            double um_average = 0.0;
+            double um1_average = 0.0;
+            double* um_coarse_values = malloc((coarse_grained_n + 1) * sizeof(double));
+            double* um1_coarse_values = malloc((coarse_grained_n + 1) * sizeof(double));
             
             for (int j = 0; j <= coarse_grained_n; j++) { 
                 double*** remaining_array = malloc((num_files - j) * sizeof(double**)); 
@@ -274,14 +279,27 @@ int main(int argc, char *argv[]) {
                 float U_m_plus_one = calculate_U_m_plus_one(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type);
                 float n = negative_logarithm(U_m, U_m_plus_one);
                 n_coarse_values[j] = n; // guarda dato
+                um_coarse_values[j] = U_m;
+                um1_coarse_values[j] = U_m_plus_one;
             }
 
-            for (int z = 0; z <= coarse_grained_n; z++) { 
-                average += n_coarse_values[z]; 
+            if (refined == 0){
+                for (int z = 0; z <= coarse_grained_n; z++) { 
+                    average += n_coarse_values[z]; 
+                }
+                average /= (coarse_grained_n + 1);
+                n_values[i - 1] = average;
             }
-            average /= (coarse_grained_n + 1);
-            n_values[i - 1] = average;
-
+            else if (refined == 1){
+                for (int z = 0; z <= coarse_grained_n; z++) { 
+                    um_average += um_coarse_values[z];
+                    um1_average += um1_coarse_values[z];
+                }
+                um_average /= (coarse_grained_n + 1);
+                um1_average /= (coarse_grained_n + 1);
+                float n = negative_logarithm(um_average, um1_average);
+                n_values[i - 1] = n;
+            }
         }
 
         else{
