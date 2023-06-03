@@ -255,6 +255,8 @@ int main(int argc, char *argv[]) {
     double*** list_of_matrices = read_csv(file_path, num_files, rows, cols);
     double* n_values = malloc(scales * sizeof(double));
 
+    printf('hola');
+
     for (int i = 1; i <= scales; i++) { 
         if (composite == 1) {
             double average = 0.0;
