@@ -86,7 +86,7 @@ double distance(int m, double ***list_of_matrices, int i, int j, int k, int a, i
     }
 }
 
-double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m, int num_rows, int num_cols, int num_matrices, int distance_type) {
+double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m, int num_rows, int num_cols, int num_matrices, int distance_type, int* temp_new_size) {
     double* dists_array = (double*)malloc((((num_matrices-m)*(num_rows-m)*(num_cols-m))-1) * sizeof(double));
     int co = 0;
 
@@ -104,31 +104,55 @@ double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m,
             }
         }
     }
-    return dists_array;
+    double* temp_unique_arr = remove_duplicates(dists_array, ((num_matrices-m)*(num_rows-m)*(num_cols-m)-1), temp_new_size);
+    return temp_unique_arr;
 }
 
 double distance_m(double*** signal_array, int m, int num_rows, int num_cols, int num_matrices, int distance_type, double sampleo) {
     int size = (int)(round((num_matrices - m) * 1 / sampleo) * round((num_rows - m) * 1 / sampleo) * round((num_cols - m) * 1 / sampleo));
     double** pos = (double**)malloc(size * sizeof(double*));
+    int* ind_unique_values = (int*)malloc(size*sizeof(int));
+    int flattened_size = 0;
     int c = 0;
 
     for (int k = 0; k < num_matrices - m; k+=(int)sampleo){
         for (int i = 0; i < num_rows - m; i+=(int)sampleo) {
             for (int j = 0; j < num_cols - m; j+=(int)sampleo) {
-                pos[c] = calculate_distance_m(signal_array, i, j, k, m, num_rows, num_cols, num_matrices, distance_type);
+                int temp_new_size = 0;
+                pos[c] = calculate_distance_m(signal_array, i, j, k, m, num_rows, num_cols, num_matrices, distance_type, &temp_new_size);
+                flattened_size += temp_new_size;
+                ind_unique_values[c] = temp_new_size;
                 c += 1;
             }
         }
     }
-    double* distances_flattened = (double*)malloc(size*((num_matrices-m)*(num_rows-m)*(num_cols-m)-1) * sizeof(double));
+    double* distances_flattened = (double*)malloc(flattened_size * sizeof(double));
     int co = 0;
     for(int i = 0; i < size; i++){
-        for(int j = 0; j < ((num_matrices-m)*(num_rows-m)*(num_cols-m)-1); j++){
+        for(int j = 0; j < ind_unique_values[i]; j++){
             distances_flattened[co] = pos[i][j];
             co += 1;
         }
     }
     int new_size;
-    double* unique_arr = remove_duplicates(distances_flattened, size*((num_matrices-m)*(num_rows-m)*(num_cols-m)-1), &new_size);
+    double* unique_arr = remove_duplicates(distances_flattened, flattened_size, &new_size);
     return calculate_standard_deviation(unique_arr, new_size);
+}
+
+double unique_values_std(double*** signal_array, int num_rows, int num_cols, int num_matrices){
+    int size = num_rows*num_cols*num_matrices;
+    double* values = (double*)malloc(size*sizeof(double));
+    int c = 0;
+    for(int k = 0; k < num_matrices; k++){
+        for(int i = 0; i < num_rows; i++){
+            for(int j = 0; j < num_cols; j++){
+                values[c] = signal_array[k][i][j];
+                c += 1;
+            }
+        }
+    }
+    int new_size;
+    double* unique_arr = remove_duplicates(values, size, &new_size);
+    return calculate_standard_deviation(unique_arr, new_size);
+
 }

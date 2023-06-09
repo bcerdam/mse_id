@@ -7,5 +7,7 @@ double calculate_standard_deviation(double* values, int size);
 double distance(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type);
 double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m, int num_rows, int num_cols, int num_matrices, int distance_type);
 double distance_m(double*** signal_array, int m, int num_rows, int num_cols, int num_matrices, int distance_type, double sampleo);
+double unique_values_std(double*** signal_array, int num_rows, int num_cols, int num_matrices);
+
 
 #endif

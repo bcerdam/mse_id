@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h> 
 
 double** read_csv(const char* file_path, int* rows, int* columns) {
     FILE* file = fopen(file_path, "r");
@@ -9,10 +10,13 @@ double** read_csv(const char* file_path, int* rows, int* columns) {
         return NULL;
     }
 
-    char line[5120];
+    // Determine the number of rows and columns
+    char* line = NULL;
+    size_t line_buffer_size = 0;
     *rows = 0;
     *columns = 0;
-    while (fgets(line, sizeof(line), file)) {
+    ssize_t line_length;
+    while ((line_length = getline(&line, &line_buffer_size, file)) != -1) {
         (*rows)++;
         if (*columns == 0) {
             char* token = strtok(line, ",");
@@ -23,15 +27,34 @@ double** read_csv(const char* file_path, int* rows, int* columns) {
         }
     }
 
+    // Rewind the file to read from the beginning
     rewind(file);
 
+    // Allocate memory for the row pointers
     double** array = (double**)malloc((*rows) * sizeof(double*));
-    for (int i = 0; i < (*rows); i++) {
-        array[i] = (double*)malloc((*columns) * sizeof(double));
+    if (array == NULL) {
+        printf("Failed to allocate memory.\n");
+        return NULL;
     }
 
+    // Allocate memory for the individual rows
+    for (int i = 0; i < (*rows); i++) {
+        array[i] = (double*)malloc((*columns) * sizeof(double));
+        if (array[i] == NULL) {
+            printf("Failed to allocate memory.\n");
+            // Clean up the previously allocated memory
+            for (int j = 0; j < i; j++) {
+                free(array[j]);
+            }
+            free(array);
+            free(line);  // Free the dynamically allocated line buffer
+            return NULL;
+        }
+    }
+
+    // Read the matrix values from the file
     int row = 0;
-    while (fgets(line, sizeof(line), file) && row < (*rows)) {
+    while ((line_length = getline(&line, &line_buffer_size, file)) != -1 && row < (*rows)) {
         char* token = strtok(line, ",");
         int column = 0;
         while (token != NULL && column < (*columns)) {
@@ -53,6 +76,7 @@ double** read_csv(const char* file_path, int* rows, int* columns) {
     }
 
     fclose(file);
+    free(line);  // Free the dynamically allocated line buffer
 
     return array;
 }

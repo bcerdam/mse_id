@@ -154,6 +154,7 @@ int main(int argc, char* argv[]) {
     int distance_type = atoi(argv[8]);
     int m_distance = atoi(argv[9]);
     int sampleo = atoi(argv[10]);
+    int std_type = atoi(argv[14]);
 
     // Info relevante de signal
 
@@ -162,17 +163,23 @@ int main(int argc, char* argv[]) {
     int num_cols = atoi(argv[13]);
 
     // Abrir .csv
-    int rows, columns;
+    int rows, columns; // rows = numero de matrices, columns = rows * columns // Malos nombres de variables.
     double** data_array = read_csv(file_path, &rows, &columns);
 
     // Estructura matrices a lo largo del tiempo
     double*** signal_array = data_structure(data_array, num_matrices, num_rows, num_cols);
 
     // Desviacion estandar de signal
-    double signal_std = distance_m(signal_array, m_distance, num_rows, num_cols, num_matrices, distance_type, sampleo);
-    r *= signal_std;
-
-    // MSE 3D
+    if(std_type == 1){
+        double signal_std = distance_m(signal_array, m_distance, num_rows, num_cols, num_matrices, distance_type, sampleo);
+        r *= signal_std;
+    }
+    else{
+        double signal_std = unique_values_std(signal_array, num_rows, num_cols, num_matrices);
+        r *= signal_std;
+    }
+    
+    // // MSE 3D
     double* entropy_values = method_mse(signal_array, scales, m, r, fuzzy, method, delta, distance_type, num_matrices, num_rows, num_cols);
     for (int i = 0; i < scales; i++) {
         printf("%f ", entropy_values[i]);
