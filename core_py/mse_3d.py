@@ -66,5 +66,3 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0,
 # Dots
 # v = mse_3d('/home/bcm/Desktop/Repo/c_mse_3D/Datos/mse_3d_2/16x16x1000/dots', 20, 2, 0.25, True, 'RCMSE', delta=0.9)
 # utils.plot_arrays(v)
-
-# 1118469

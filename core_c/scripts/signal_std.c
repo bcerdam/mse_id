@@ -105,6 +105,7 @@ double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m,
         }
     }
     double* temp_unique_arr = remove_duplicates(dists_array, ((num_matrices-m)*(num_rows-m)*(num_cols-m)-1), temp_new_size);
+    free(dists_array);
     return temp_unique_arr;
 }
 
@@ -134,6 +135,11 @@ double distance_m(double*** signal_array, int m, int num_rows, int num_cols, int
             co += 1;
         }
     }
+    
+    for(int i = 0; i < size; i++){
+        free(pos[i]);
+    }
+    free(pos);
     int new_size;
     double* unique_arr = remove_duplicates(distances_flattened, flattened_size, &new_size);
     return calculate_standard_deviation(unique_arr, new_size);

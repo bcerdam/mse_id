@@ -35,6 +35,15 @@ double fuzzy_membership(double distance, double r, double delta) {
     }
 }
 
+double fuzzy_sinusoidal(double distance, double r, double delta){
+    if(r == 0){
+        return 1;
+    }
+    else{
+        return powf( (1 + expf( delta * (powf(distance, 2) - powf(r, 2) ) ) ) , -1);
+    }
+}
+
 double window_distance(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
     if (distance_type == 0){
         double max_dist = 0;
