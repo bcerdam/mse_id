@@ -11,7 +11,9 @@
 double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size) {
     double count = 0;
     double N_m = (H - m) * (W - m) * (T - m);
+    // double N_m = (H - m) * (W - m) * (T - m - 1);
     for (int c = 0; c < T - m; c++){
+        // if(c != k){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
                 if (a == i && b == j && c == k) {
@@ -42,7 +44,8 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
                     }
                 }
             }
-        }
+    }
+        // }
     }
     return count / (N_m-1);
 }
@@ -93,17 +96,22 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
             double um1_average = 0.0;
 
             for (int j = 0; j <= coarse_grained_n; j++) { 
-                double*** remaining_array = malloc((num_files - j) * sizeof(double**)); 
+                // double*** remaining_array = malloc((num_files - j) * sizeof(double**));
+                double*** remaining_array = malloc((num_files - coarse_grained_n) * sizeof(double**)); 
                 int contador = 0;
-                for (int k = j; k < num_files; k++) { 
+                // for (int k = j; k < num_files; k++) { 
+                for (int k = j; k < num_files - coarse_grained_n + j; k++) { 
                     remaining_array[contador] = list_of_matrices[k]; 
                     contador += 1;
                 }
 
-                double*** coarse_data = coarse_graining(remaining_array, (num_files - j), i, rows, cols);
+                // double*** coarse_data = coarse_graining(remaining_array, (num_files - j), i, rows, cols);
+                double*** coarse_data = coarse_graining(remaining_array, (num_files - coarse_grained_n), i, rows, cols);
 
-                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type, 0);
-                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type, 1);
+                // float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type, 0);
+                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 0);
+                // float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - j) / i, delta, fuzzy, distance_type, 1);
+                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 1);
                 float n = negative_logarithm(U_m, U_m_plus_one);
 
                 n_coarse_values[j] = n;

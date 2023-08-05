@@ -157,8 +157,5 @@ double unique_values_std(double*** signal_array, int num_rows, int num_cols, int
             }
         }
     }
-    int new_size;
-    double* unique_arr = remove_duplicates(values, size, &new_size);
-    return calculate_standard_deviation(unique_arr, new_size);
-
+    return calculate_standard_deviation(values, size);
 }
