@@ -13,14 +13,14 @@ def info_matriz(csv_path):
 
 def run_c_program(csv_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type=1):
     info = info_matriz(csv_path)
-    command = [os.path.join(os.path.dirname(os.getcwd()), 'core_c', 'executables', 'mse_3d'), csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
-               str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type)]
+    command = [os.path.join(os.path.dirname(os.getcwd()), 'c_mse_3D/core_c', 'executables', 'mse_3d_p'), csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
+               str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(14), str(16), str(std_type)]
     result = subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
     n_values = list(result.split())
     n_values = [float(x) for x in n_values]
     return n_values
 
-def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_DISTANCES'):
+def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_VALUES'):
     # Fuzzy params
     if fuzzy == True:
         fuzzy = 1
@@ -58,6 +58,8 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0,
     return mse_values
 
 # Compilar con: gcc -o core_c/executables/mse_3d core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -lm -fopenmp -Icore_c/headers
+
+# clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/libomp/16.0.6/lib -lomp -Icore_c/headers core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -o core_c/executables/mse_3d_p
 
 # White Noise
 # v = mse_3d('/home/bcm/Desktop/Repo/c_mse_3D/Datos/10x10x100_2/white_noise', 20, 2, 0.25, True, 'RCMSE')
