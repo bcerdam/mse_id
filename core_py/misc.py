@@ -16,15 +16,12 @@ def gen_weights(r, method, res, x_prob, y_prob):
         new_y = random.choice(weight_range)
     elif method == 'SEMI_RANDOM_CORR':
         weight_range = [x for x in range(-r, r + 1)]
-        x_pos_prob_range = [x_prob*10/r for x in range(1, r+1)]
-        x_neg_prog_range = [(10-x_prob*10)/r for x in range(-r, 0)]
+        x_pos_prob_range = [x_prob/r for x in range(1, r+1)]
+        x_neg_prog_range = [(1-x_prob)/r for x in range(-r, 0)]
         x_prob_range = x_neg_prog_range+[0]+x_pos_prob_range
-        # x_prob_range = x_neg_prog_range+x_pos_prob_range
-        y_pos_prob_range = [y_prob * 10 / r for x in range(1, r + 1)]
-        y_neg_prog_range = [(10 - y_prob * 10) / r for x in range(-r, 0)]
+        y_pos_prob_range = [y_prob/r for x in range(1, r + 1)]
+        y_neg_prog_range = [(1-y_prob) / r for x in range(-r, 0)]
         y_prob_range = y_neg_prog_range + [0] + y_pos_prob_range
-        # y_prob_range = y_neg_prog_range + y_pos_prob_range
-        # print(x_prob_range, y_prob_range)
         while np.abs(new_x) != r and np.abs(new_y) != r:
             new_x = random.choices(weight_range, weights=x_prob_range)[0]
             new_y = random.choices(weight_range, weights=y_prob_range)[0]
