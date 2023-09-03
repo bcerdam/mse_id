@@ -86,6 +86,37 @@ double distance(int m, double ***list_of_matrices, int i, int j, int k, int a, i
     }
 }
 
+double distance_exp_den(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
+    double max_dist = 0;
+    for(int z = 0; z < m; z++) {
+        for(int l = 0; l < m; l++) {
+            double dist = fabs(list_of_matrices[k][i+z][j+l] - list_of_matrices[c][a+z][b+l]);
+            if(dist > max_dist) {
+                max_dist = dist;
+            }
+        }
+    }
+    return max_dist;
+}
+
+double distance_exp_num(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
+    double max_dist = 0;
+    for(int z = 0; z < m; z++) {
+        for(int l = 0; l < m; l++) {
+            double dist = fabs(list_of_matrices[k][i+z][j+l] - list_of_matrices[c][a+z][b+l]);
+            if(dist > max_dist) {
+                max_dist = dist;
+            }
+        }
+    }
+    int middle = m / 2;
+    double dist = fabs(list_of_matrices[k+1][i+middle][j+middle] - list_of_matrices[c+1][a+middle][b+middle]);
+    if(dist > max_dist) {
+                max_dist = dist;
+    }
+    return max_dist;
+}
+
 double* calculate_distance_m(double*** signal_array, int i, int j, int k, int m, int num_rows, int num_cols, int num_matrices, int distance_type, int* temp_new_size) {
     double* dists_array = (double*)malloc((((num_matrices-m)*(num_rows-m)*(num_cols-m))-1) * sizeof(double));
     int co = 0;
