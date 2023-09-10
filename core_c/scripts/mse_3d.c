@@ -11,6 +11,7 @@
 double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod) {
     double count = 0;
     double N_m = (H - m) * (W - m) * (T - m);
+    int m_mod = m+1;
     for (int c = 0; c < T - m; c++){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
@@ -20,8 +21,7 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
                 else {
                     if (mod == 1){
                         if (window_size == 0){
-                            m = 3;
-                            double dist = distance_exp_den(m, list_of_matrices, i, j, k, a, b, c, distance_type);
+                            double dist = distance_exp_den(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type);
                             if (dist <= r){
                                 count ++;
                             }
@@ -31,8 +31,7 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
                             }
                         }
                         else if (window_size == 1){
-                            m = 3;
-                            double dist = distance_exp_num(m, list_of_matrices, i, j, k, a, b, c, distance_type);
+                            double dist = distance_exp_num(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type);
                             if (dist <= r){
                                 count ++;
                             }
@@ -106,7 +105,7 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
     double* n_values = malloc(scales * sizeof(double));
 
     for (int i = 1; i <= scales; i++) {
-    // for (int i = 20; i <= 20; i++) {  
+    // for (int i = 30; i <= 100; i++) {  
         if (method == 1 || method == 2) {
             int coarse_grained_n = num_files % i;
 

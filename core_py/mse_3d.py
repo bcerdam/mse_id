@@ -21,7 +21,7 @@ def run_c_program(csv_path, scales, m, r, fuzzy, method, delta=0.7, distance_typ
     n_values = [float(x) for x in n_values]
     return n_values
 
-def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_VALUES', mod=False):
+def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_VALUES', mod=False):
     # Fuzzy params
     if fuzzy == True:
         fuzzy = 1
@@ -70,5 +70,10 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0,
 
 # clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/libomp/16.0.6/lib -lomp -Icore_c/headers core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -o core_c/executables/mse_3d_p
 
-# Ultimos tres valores: [0.53259, 0.53985, 0.551946]
-# Valores 10, 11, 12: [0.478086, 0.480089, 0.47814]
+# mod_f = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 40, 2, 0.2, True, 'MSE', mod=True)
+#
+# mod_rc = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 40, 2, 0.2, False, 'RCMSE', mod=True)
+
+mod_frc = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 50, 2, 0.2, True, 'RCMSE', mod=True)
+
+

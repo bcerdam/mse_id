@@ -46,32 +46,3 @@ def create_2d_matrix_from_json(folder_path, order, method, sample=1):
     matrix = np.column_stack(list(data_dict.values()))
     return matrix
 
-# # Parametros relacionados a Arreglo de Electrodos.
-# folder_path = '/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/UV/UV_means/UV_means_json'
-# indices_orden = indices_arreglos_electrodos()
-# methods posibles: ('sin_fw', 'sqr_fw', 'sin_bw', 'sqr_bw') x ('lo', 'md', 'hi')
-# mse_3d_matrix = create_2d_matrix_from_json(folder_path, indices_orden, ('sin_fw', 'hi'), 10)
-#
-# methods_1 = ['sin_fw', 'sqr_fw', 'sin_bw', 'sqr_bw']
-# methods_2 = ['lo', 'md', 'hi']
-# for method_1 in methods_1:
-#     for method_2 in methods_2:
-#         mse_3d_matrix = create_2d_matrix_from_json(folder_path, indices_orden, (method_1, method_2), 1)
-#         # row_means = np.mean(mse_3d_matrix, axis=1)
-#         # result_column = row_means.reshape(-1, 1)
-#         np.savetxt(f'/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/UV/UV_means/UV_means_processed/electrode_array_1_csv/datos/{method_1+"_"+method_2}.csv',
-#                    mse_3d_matrix, delimiter=',', fmt='%.18e')
-
-
-
-
-
-
-# # Example usage:
-# folder_path = "/path/to/your/csv/files/"
-# order = ['K6', 'I8', 'L2', ...]  # Replace this with the actual 'order' list
-# result_matrix = create_2d_matrix_from_csvs(folder_path, order)
-#
-# if result_matrix is not None:
-#     print("Resulting 2D Matrix:")
-#     print(result_matrix)
