@@ -22,6 +22,25 @@ def plot_arrays(data_list, title='', xlabel='', ylabel='', legends=None, save_pa
         plt.savefig(save_path)
     plt.show()
 
+def plot_arrays_2(data_list, title='', xlabel='', ylabel='', legends=None, save_path=None):
+    fig, ax = plt.subplots()
+    plt.grid('black')
+    ax.set_facecolor('lightgrey')
+    for i, data_tuple in enumerate(data_list):
+        name, data = data_tuple
+        if legends is not None and len(legends) == len(data_list):
+            label = legends[i]
+        else:
+            label = name
+        plt.plot(data, color=f'C{i}', label=label, markeredgecolor='black')
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    if save_path is not None:
+        plt.savefig(save_path)
+    plt.show()
+
 def indices_arreglos_electrodos():
     indice_letras = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P']
     indice_numeros = ['14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1']

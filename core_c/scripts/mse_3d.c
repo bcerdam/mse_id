@@ -8,11 +8,20 @@
 #include "utils_funcs.h"
 
 
-double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod) {
+double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod, int m_espacial, int dim_cubo) {
     double count = 0;
-    double N_m = (H - m) * (W - m) * (T - m);
+    int t_reduce;
+
+    if(mod == 0){
+        t_reduce = m;
+    }
+    else if(mod == 1){
+        t_reduce = ((m_espacial-1)+1);
+    }
+    double size = (double)((H - m) * (W - m) * (T - t_reduce));
+
     int m_mod = m+1;
-    for (int c = 0; c < T - m; c++){
+    for (int c = 0; c < T - t_reduce; c++){
         for (int a = 0; a < H - m; a++) {
             for (int b = 0; b < W - m; b++) {
                 if (a == i && b == j && c == k) {
@@ -21,7 +30,7 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
                 else {
                     if (mod == 1){
                         if (window_size == 0){
-                            double dist = distance_exp_den(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type);
+                            double dist = distance_exp_den(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type, m_espacial, dim_cubo);
                             if (dist <= r){
                                 count ++;
                             }
@@ -31,7 +40,7 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
                             }
                         }
                         else if (window_size == 1){
-                            double dist = distance_exp_num(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type);
+                            double dist = distance_exp_num(m_mod, list_of_matrices, i, j, k, a, b, c, distance_type, m_espacial, dim_cubo);
                             if (dist <= r){
                                 count ++;
                             }
@@ -68,17 +77,26 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
             }
         }
     }
-    return count / (N_m-1);
+    return count / (size-1);
 }
 
-double calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod) {
+double calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod, int m_espacial, int dim_cubo) {
     double sum = 0.0;
-    double size = (double)((H - m) * (W - m) * (T - m));
+    int t_reduce;
+
+    if(mod == 0){
+        t_reduce = m;
+    }
+    else if(mod == 1){
+        t_reduce = ((m_espacial-1)+1);
+    }
+    double size = (double)((H - m) * (W - m) * (T - t_reduce));
+
     #pragma omp parallel for reduction(+:sum) num_threads(32)
-    for (int k = 0; k < T - m; k++){
+    for (int k = 0; k < T - t_reduce; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
-                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy, distance_type, window_size, mod);
+                sum += calculate_U_ij_m(list_of_matrices, i, j, k, m, r, H, W, T, delta, fuzzy, distance_type, window_size, mod, m_espacial, dim_cubo);
             }
         }
     }
@@ -101,11 +119,11 @@ double negative_logarithm(double um, double umplus1) {
     }
 }
 
-double* method_mse(double*** list_of_matrices, int scales, int m, double r, int fuzzy, int method, double delta, int distance_type, int num_files, int rows, int cols, int mod){
+double* method_mse(double*** list_of_matrices, int scales, int m, double r, int fuzzy, int method, double delta, int distance_type, int num_files, int rows, int cols, int mod, int m_espacial, int dim_cubo){
     double* n_values = malloc(scales * sizeof(double));
 
     for (int i = 1; i <= scales; i++) {
-    // for (int i = 30; i <= 100; i++) {  
+    // for (int i = 18; i <= 20; i++) {  
         if (method == 1 || method == 2) {
             int coarse_grained_n = num_files % i;
 
@@ -127,8 +145,8 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
 
                 double*** coarse_data = coarse_graining(remaining_array, (num_files - coarse_grained_n), i, rows, cols);
 
-                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 0, mod);
-                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 1, mod);
+                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo);
+                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo);
                 float n = negative_logarithm(U_m, U_m_plus_one);
 
                 n_coarse_values[j] = n;
@@ -158,8 +176,8 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
 
         else{
             double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
-            double U_m = calculate_U_m(coarse_data, m ,r, rows, cols, num_files/i, delta, fuzzy, distance_type, 0, mod);
-            double U_m_plus_one = calculate_U_m(coarse_data, m, r, rows, cols, num_files/i, delta, fuzzy, distance_type, 1, mod);
+            double U_m = calculate_U_m(coarse_data, m ,r, rows, cols, num_files/i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo);
+            double U_m_plus_one = calculate_U_m(coarse_data, m, r, rows, cols, num_files/i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo);
             double n = negative_logarithm(U_m, U_m_plus_one);
             n_values[i-1] = n;
         }
@@ -185,6 +203,8 @@ int main(int argc, char* argv[]) {
     int sampleo = atoi(argv[10]);
     int std_type = atoi(argv[14]);
     int mod = atoi(argv[15]);
+    int m_espacial = atoi(argv[16]);
+    int dim_cubo = atoi(argv[17]);
 
     // Info relevante de signal
 
@@ -210,7 +230,7 @@ int main(int argc, char* argv[]) {
     }
 
     // MSE 3D
-    double* entropy_values = method_mse(signal_array, scales, m, r, fuzzy, method, delta, distance_type, num_matrices, num_rows, num_cols, mod);
+    double* entropy_values = method_mse(signal_array, scales, m, r, fuzzy, method, delta, distance_type, num_matrices, num_rows, num_cols, mod, m_espacial, dim_cubo);
     for (int i = 0; i < scales; i++) {
         printf("%f \n", entropy_values[i]);
     }

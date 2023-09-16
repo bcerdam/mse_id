@@ -86,34 +86,51 @@ double distance(int m, double ***list_of_matrices, int i, int j, int k, int a, i
     }
 }
 
-double distance_exp_den(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
+double distance_exp_den(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type, int m_espacial, int dim_cubo) {
     double max_dist = 0;
-    for(int z = 0; z < m; z++) {
-        for(int l = 0; l < m; l++) {
-            double dist = fabs(list_of_matrices[k][i+z][j+l] - list_of_matrices[c][a+z][b+l]);
-            if(dist > max_dist) {
-                max_dist = dist;
+    for (int n = 0; n < m_espacial; n++){
+        for(int z = 0; z < m; z++) {
+            for(int l = 0; l < m; l++) {
+                double dist = fabs(list_of_matrices[k+n][i+z][j+l] - list_of_matrices[c+n][a+z][b+l]);
+                if(dist > max_dist) {
+                    max_dist = dist;
+                }
             }
         }
     }
     return max_dist;
 }
 
-double distance_exp_num(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type) {
+double distance_exp_num(int m, double ***list_of_matrices, int i, int j, int k, int a, int b, int c, int distance_type, int m_espacial, int dim_cubo) {
     double max_dist = 0;
-    for(int z = 0; z < m; z++) {
-        for(int l = 0; l < m; l++) {
-            double dist = fabs(list_of_matrices[k][i+z][j+l] - list_of_matrices[c][a+z][b+l]);
-            if(dist > max_dist) {
-                max_dist = dist;
+    for (int n = 0; n < m_espacial; n++){
+        for(int z = 0; z < m; z++) {
+            for(int l = 0; l < m; l++) {
+                double dist = fabs(list_of_matrices[k+n][i+z][j+l] - list_of_matrices[c+n][a+z][b+l]);
+                if(dist > max_dist) {
+                    max_dist = dist;
+                }
             }
         }
     }
-    int middle = m / 2;
-    double dist = fabs(list_of_matrices[k+1][i+middle][j+middle] - list_of_matrices[c+1][a+middle][b+middle]);
-    if(dist > max_dist) {
-                max_dist = dist;
-    }
+    int frame_middle = m / 2; // 1
+    int sub_frame_middle = dim_cubo / 2; // 0
+    int x_start = frame_middle-sub_frame_middle; // 1
+    int y_start = frame_middle-sub_frame_middle; // 1
+    for(int z = x_start; z < x_start+dim_cubo; z++) { // 1 a 1
+            for(int l = y_start; l < y_start+dim_cubo; l++) { // 1 a 1
+                double dist = fabs(list_of_matrices[k+m_espacial][i+z][j+l] - list_of_matrices[c+m_espacial][a+z][b+l]);
+                if(dist > max_dist) {
+                    max_dist = dist;
+                }
+            }
+        }
+
+    // double dist = fabs(list_of_matrices[k+1][i+dim_cubo][j+dim_cubo] - list_of_matrices[c+1][a+dim_cubo][b+dim_cubo]);
+    // double dist = fabs(list_of_matrices[k+m_espacial][i+dim_cubo][j+dim_cubo] - list_of_matrices[c+m_espacial][a+dim_cubo][b+dim_cubo]);
+    // if(dist > max_dist) {
+    //             max_dist = dist;
+    // }
     return max_dist;
 }
 

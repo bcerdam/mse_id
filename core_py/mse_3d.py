@@ -12,16 +12,16 @@ def info_matriz(csv_path):
     cols = np.sqrt(data_array.shape[1])
     return (num_matrices, rows, cols)
 
-def run_c_program(csv_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type=1, mod=False):
+def run_c_program(csv_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type=1, mod=False, m_espacial=1, dim_cubo=1):
     info = info_matriz(csv_path)
     command = [os.path.join(os.path.dirname(os.getcwd()), 'c_mse_3D/core_c', 'executables', 'mse_3d_p'), csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
-               str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type), str(mod)]
+               str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type), str(mod), str(m_espacial), str(dim_cubo)]
     result = subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
     n_values = list(result.split())
     n_values = [float(x) for x in n_values]
     return n_values
 
-def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_VALUES', mod=False):
+def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0, m_distance=2, sampleo=1, std_type='UNIQUE_VALUES', mod=False, m_espacial=1, dim_cubo=1):
     # Fuzzy params
     if fuzzy == True:
         fuzzy = 1
@@ -50,6 +50,9 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0,
         if m not in valores_permitidos:
             return print('Si parametro mod=True, entonces parametro "m" debe ser igual a 2, 4, 6 o 8.')
 
+        if dim_cubo not in [1, 3, 5] or dim_cubo > (m+1):
+            return print('dim_cubo debe ser menor que parametro "m", y debe ser impar: (1, 3, 5, etc.)')
+
     mse_values = []
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
@@ -57,7 +60,7 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0,
         print('Working on: ', filename)
         start_time = time.time()
 
-        mse_values.append([filename, run_c_program(file_path, scales, m, r, fuzzy, method, delta, distance_type, m_distance, sampleo, std_type, mod)])
+        mse_values.append([filename, run_c_program(file_path, scales, m, r, fuzzy, method, delta, distance_type, m_distance, sampleo, std_type, mod, m_espacial, dim_cubo)])
 
 
         end_time = time.time()
@@ -70,10 +73,4 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0,
 
 # clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/libomp/16.0.6/lib -lomp -Icore_c/headers core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -o core_c/executables/mse_3d_p
 
-# mod_f = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 40, 2, 0.2, True, 'MSE', mod=True)
-#
-# mod_rc = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 40, 2, 0.2, False, 'RCMSE', mod=True)
-
-mod_frc = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/generated/batch_2/datos', 50, 2, 0.2, True, 'RCMSE', mod=True)
-
-
+# v = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/UV/UV_means/UV_means_processed/electrode_array_1_csv/datos/staged', 20, 2, 0.2, False, 'MSE', mod=True, m_espacial=1, dim_cubo=1)
