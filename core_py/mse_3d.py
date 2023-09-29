@@ -2,8 +2,8 @@ import subprocess
 import numpy as np
 import os
 import time
-import utils
-import misc
+# import utils
+# import misc
 
 def info_matriz(csv_path):
     data_array = np.genfromtxt(csv_path, delimiter=',')
@@ -73,4 +73,13 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0,
 
 # clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/libomp/16.0.6/lib -lomp -Icore_c/headers core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -o core_c/executables/mse_3d_p
 
-# v = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/UV/UV_means/UV_means_processed/electrode_array_1_csv/datos/staged', 20, 2, 0.2, False, 'MSE', mod=True, m_espacial=1, dim_cubo=1)
+# v = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/test/staged', 20, 2, 0.2, True, 'MSE', mod=True, m_espacial=1, dim_cubo=1)
+
+# 1: 12.12s
+# 2: 6.32s
+# 4: 3.48s
+# 8: 2.75s
+# 16: 2.77s
+# 32: 2.71s
+# 64: 2.67s
+# 128: 2.70s
