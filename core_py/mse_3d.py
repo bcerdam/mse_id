@@ -2,8 +2,7 @@ import subprocess
 import numpy as np
 import os
 import time
-import sys
-# import utils
+import utils
 # import misc
 
 def info_matriz(csv_path):
@@ -15,8 +14,11 @@ def info_matriz(csv_path):
 
 def run_c_program(csv_path, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type=1, mod=False, m_espacial=1, dim_cubo=1):
     info = info_matriz(csv_path)
-    command = [os.path.join(os.path.dirname(os.getcwd()), 'core_c', 'executables', 'mse_3d_p'), csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
+    command = [os.path.join(os.path.dirname(os.getcwd()), 'c_mse_3d/core_c', 'executables', 'mse_3d_p'), csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
                str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type), str(mod), str(m_espacial), str(dim_cubo)]
+
+    # return print(csv_path, str(scales), str(m), str(r), str(fuzzy), str(method),
+    #            str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type), str(mod), str(m_espacial), str(dim_cubo))
     result = subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
     n_values = list(result.split())
     n_values = [float(x) for x in n_values]
@@ -74,16 +76,22 @@ def mse_3d(folder_path, scales, m, r, fuzzy, method, delta=0.9, distance_type=0,
 
 # clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/libomp/16.0.6/lib -lomp -Icore_c/headers core_c/scripts/mse_3d.c core_c/scripts/read_csv.c core_c/scripts/signal_std.c core_c/scripts/utils.c -o core_c/executables/mse_3d_p
 
-# v = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/test/staged', 20, 2, 0.2, True, 'MSE', mod=True, m_espacial=1, dim_cubo=1)
+'''
+folder_path: path de carpeta en donde estan los .csv's (Lo vas a tener que cambiar porque tenemos computadores distintos)
+scales: escalas
+m: porte ventana
+r: tolerancia
+fuzzy: Si se ocupa o no una funcion fuzzy
+method: Hay Multiscale Entropy (MSE), Composite Multiscale Entropy (CMSE) o Refined Composite Multiscale Entropy (RCMSE)
+mod: Es una modificacion que hablamos con el profe, no es necesaria entenderla ahora pero dejala en True nomas
+m_espacial: parametro relacionado a mod, dejalo como esta.
+dim_cubo: parametro relacionado a mod, dejalo como esta.
+'''
+# llamamos mse_3d
+ejemplo = mse_3d(folder_path='/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/test/staged',
+                 scales=20, m=2, r=0.2, fuzzy=False, method='MSE', mod=True, m_espacial=1, dim_cubo=1)
+# ploteamos resultados:
+utils.plot_arrays(ejemplo) # Los graficos se ven medios feos porque son pocos datos, pero el ejemplo sirve igual.
 
-if __name__=="__main__":
 
-    # v = mse_3d('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/test/staged', 20, 2, 0.2, False, 'MSE')
 
-    v = mse_3d(folder_path=sys.argv[1], scales=int(sys.argv[2]), m=int(sys.argv[3]), r=float(sys.argv[4]),
-               fuzzy=eval(sys.argv[5]), method=sys.argv[6], mod=eval(sys.argv[7]), m_espacial=int(sys.argv[8]), dim_cubo=int(sys.argv[9]))
-
-    for y in range(len(v)):
-        print(v[y][0])
-        for x in range(20):
-            print(v[y][1][x])

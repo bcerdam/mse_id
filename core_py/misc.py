@@ -106,7 +106,8 @@ def create_grayscale_video(frames_list, output_file, fps=24):
 def gen_video(r, size_bolita, method='SEMI_RANDOM', corr=0.5, columna_prob=0.5, fila_prob=0.5, frames_res=(50, 50), starting_pos=(25, 25), frames_no=500, save_path='test.mp4'):
     pos = video(starting_pos[0], starting_pos[1], frames_no, r, frames_res[0], size_bolita, method, columna_prob, fila_prob, corr)
     pos_fill = create_video(pos, frames_res[0], size_bolita)
-    return create_grayscale_video(pos_fill, save_path)
+    return pos
+    # return create_grayscale_video(pos_fill, save_path)
 
 def video_csv(frame_list, save_path):
     flattened_list = []
@@ -115,24 +116,91 @@ def video_csv(frame_list, save_path):
     flattened_array = np.vstack(flattened_list)
     np.savetxt(save_path, flattened_array, delimiter=',')
 
-# v = gen_video(2, (5, 5), method='SEMI_RANDOM_CORR', corr=0.5)
-
 # Videos de prueba
 
-# line = gen_video(1, (3, 3), method='LINE', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# random = gen_video(1, (3, 3), method='RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# semi_random = gen_video(1, (3, 3), method='SEMI_RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# semi_random_pos_corr = gen_video(1, (3, 3), method='SEMI_RANDOM_CORR', corr=0.6,
-#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# semi_random_neg_corr = gen_video(1, (3, 3), method='SEMI_RANDOM_CORR', corr=0.3,
-#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-
-
-
-# line = gen_video(1, (3, 3), method='LINE', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# random = gen_video(1, (3, 3), method='RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
-# semi_random = gen_video(3, (3, 3), method='SEMI_RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
+# line = gen_video(1, (3, 3), method='LINE', frames_res=(30, 30), starting_pos=(15, 15), frames_no=29999)
+# random_v = gen_video(1, (3, 3), method='RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=29999)
+# semi_random = gen_video(3, (3, 3), method='SEMI_RANDOM', frames_res=(30, 30), starting_pos=(15, 15), frames_no=29999)
 # semi_random_pos_corr = gen_video(3, (3, 3), method='SEMI_RANDOM_CORR', corr=0.6,
-#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
+#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=29999)
 # semi_random_neg_corr = gen_video(3, (3, 3), method='SEMI_RANDOM_CORR', corr=0.3,
-#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=239)
+#                                  frames_res=(30, 30), starting_pos=(15, 15), frames_no=29999)
+
+# Codigo para video FLASHES
+
+# v = list(np.genfromtxt('tiempos.csv', delimiter=','))
+# # time_points = [x[1] for x in v[1:]][:60]
+# time_points = [x[1] for x in v[1:]]
+#
+# width, height = 100, 100  # Video frame dimensions
+# # duration_ms = 15300  # Total duration in milliseconds (e.g., 10 seconds)
+# duration_ms = np.round(time_points[-1]).astype(int)
+# total_frames = duration_ms
+#
+# frames = np.zeros((total_frames, height, width, 3), dtype=np.uint8)
+#
+# for i in range(1, len(time_points), 2):
+#     start_ms = time_points[i - 1]
+#     end_ms = time_points[i]
+#     diff_ms = end_ms - start_ms
+#
+#     if diff_ms < 10:
+#         print('YES')
+#     # if diff_ms == 10:
+#     #     start_frame = int(start_ms / 1)
+#     #     end_frame = int(end_ms / 1)
+#     #     # for frame_idx in range(start_frame, end_frame):
+#     #     #     frames[frame_idx] = (255, 255, 255)  # White frame
+#     #     frames[start_frame:end_frame] = (255, 255, 255)  # Set all frames in the range to white
+#     start_frame = int(start_ms / 1)
+#     end_frame = int(end_ms / 1)
+#     frames[start_frame:end_frame] = (255, 255, 255)
+#
+# frames = frames[::10]
+# # #
+# output_video = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 100, (width, height))
+# for frame in frames:
+#     output_video.write(frame)
+# output_video.release()
+
+import csv
+
+def combine_csvs(file1_path, file2_path):
+    data1 = []
+    data2 = []
+
+    # Read data from the first CSV file
+    with open(file1_path, 'r') as file1:
+        csv_reader = csv.reader(file1)
+        for row in csv_reader:
+            data1.append(row)
+
+    # Read data from the second CSV file
+    with open(file2_path, 'r') as file2:
+        csv_reader = csv.reader(file2)
+        for row in csv_reader:
+            data2.append(row)
+
+    # Ensure both lists have the same length
+    min_length = min(len(data1), len(data2))
+
+    # Combine the data into a list of lists
+    combined_data = []
+    for i in range(min_length):
+        combined_data.append( [ int(data1[i][0]*10), int(data2[i][0]*10) ] )
+        # combined_data.append([data1[i][0], data2[i][0]])
+
+
+    return combined_data
+
+# Example usage:
+file1_path = '/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/brownian/fbm_x_02.csv'  # Replace with the path to your first CSV
+file2_path = '/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/brownian/fbm_y_02.csv'  # Replace with the path to your second CSV
+result = combine_csvs(file1_path, file2_path)
+
+x = np.genfromtxt('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/brownian/fbm_x_02.csv', delimiter=',')
+print(x.max(), x.min())
+
+y = np.genfromtxt('/Users/brunocerdamardini/Desktop/repo/c_mse_3D/Datos/brownian/fbm_y_02.csv', delimiter=',')
+print(y.max(), y.min())
+

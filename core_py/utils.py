@@ -2,18 +2,26 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 import json
+from matplotlib.cm import get_cmap
+
 
 def plot_arrays(data_list, title='', xlabel='', ylabel='', legends=None, save_path=None):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10, 6))
     plt.grid('black')
     ax.set_facecolor('lightgrey')
+
+    # Get a colormap with enough colors for the lines
+    cmap = get_cmap('Set2')
+    colors = cmap(np.linspace(0, 1, len(data_list)))
+
     for i, data_tuple in enumerate(data_list):
         name, data = data_tuple
         if legends is not None and len(legends) == len(data_list):
             label = legends[i]
         else:
             label = name
-        plt.plot(data, color=f'C{i}', marker='v', markersize=5, label=label, markeredgecolor='black')
+        plt.plot(data, color=colors[i], marker='v', markersize=5, label=label, markeredgecolor='black')
+
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -65,3 +73,16 @@ def create_2d_matrix_from_json(folder_path, order, method, sample=1):
     matrix = np.column_stack(list(data_dict.values()))
     return matrix
 
+
+# Para el resto:
+# Datos/datos/sin_bw_lo.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sin_bw_md.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sin_fw_hi.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sin_fw_lo.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sin_fw_md.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_bw_hi.csv 20 2 0.2 0 0 0.9 0 2 1 9997 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_bw_lo.csv 20 2 0.2 0 0 0.9 0 2 1 9993 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_bw_md.csv 20 2 0.2 0 0 0.9 0 2 1 10001 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_fw_hi.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_fw_lo.csv 20 2 0.2 0 0 0.9 0 2 1 9999 14.0 14.0 0 1 1 1
+# Datos/datos/sqr_fw_md.csv 20 2 0.2 0 0 0.9 0 2 1 10000 14.0 14.0 0 1 1 1
