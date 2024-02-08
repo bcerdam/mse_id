@@ -80,7 +80,7 @@ double calculate_U_ij_m(double ***list_of_matrices, int i, int j, int k, int m, 
     return count / (size-1);
 }
 
-double calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod, int m_espacial, int dim_cubo) {
+double calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, int T, double delta, int fuzzy, int distance_type, int window_size, int mod, int m_espacial, int dim_cubo, int n_threads) {
     double sum = 0.0;
     int t_reduce;
 
@@ -92,7 +92,7 @@ double calculate_U_m(double ***list_of_matrices, int m, double r, int H, int W, 
     }
     double size = (double)((H - m) * (W - m) * (T - t_reduce));
 
-    #pragma omp parallel for reduction(+:sum) num_threads(32)
+    #pragma omp parallel for reduction(+:sum) num_threads(n_threads)
     for (int k = 0; k < T - t_reduce; k++){
         for (int i = 0; i < H - m; i++) {
             for (int j = 0; j < W - m; j++) {
@@ -119,7 +119,7 @@ double negative_logarithm(double um, double umplus1) {
     }
 }
 
-double* method_mse(double*** list_of_matrices, int scales, int m, double r, int fuzzy, int method, double delta, int distance_type, int num_files, int rows, int cols, int mod, int m_espacial, int dim_cubo){
+double* method_mse(double*** list_of_matrices, int scales, int m, double r, int fuzzy, int method, double delta, int distance_type, int num_files, int rows, int cols, int mod, int m_espacial, int dim_cubo, int n_threads){
     double* n_values = malloc(scales * sizeof(double));
 
     for (int i = 1; i <= scales; i++) {
@@ -145,8 +145,8 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
 
                 double*** coarse_data = coarse_graining(remaining_array, (num_files - coarse_grained_n), i, rows, cols);
 
-                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo);
-                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo);
+                float U_m = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo, n_threads);
+                float U_m_plus_one = calculate_U_m(coarse_data, m, r, cols, rows, (num_files - coarse_grained_n) / i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo, n_threads);
                 float n = negative_logarithm(U_m, U_m_plus_one);
 
                 n_coarse_values[j] = n;
@@ -176,8 +176,8 @@ double* method_mse(double*** list_of_matrices, int scales, int m, double r, int 
 
         else{
             double*** coarse_data = coarse_graining(list_of_matrices, num_files, i, rows, cols);
-            double U_m = calculate_U_m(coarse_data, m ,r, rows, cols, num_files/i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo);
-            double U_m_plus_one = calculate_U_m(coarse_data, m, r, rows, cols, num_files/i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo);
+            double U_m = calculate_U_m(coarse_data, m ,r, rows, cols, num_files/i, delta, fuzzy, distance_type, 0, mod, m_espacial, dim_cubo, n_threads);
+            double U_m_plus_one = calculate_U_m(coarse_data, m, r, rows, cols, num_files/i, delta, fuzzy, distance_type, 1, mod, m_espacial, dim_cubo, n_threads);
             double n = negative_logarithm(U_m, U_m_plus_one);
             n_values[i-1] = n;
         }
@@ -205,6 +205,7 @@ int main(int argc, char* argv[]) {
     int mod = atoi(argv[15]);
     int m_espacial = atoi(argv[16]);
     int dim_cubo = atoi(argv[17]);
+    int n_threads = atoi(argv[18]);
 
     // Info relevante de signal
 
@@ -230,7 +231,7 @@ int main(int argc, char* argv[]) {
     }
 
     // MSE 3D
-    double* entropy_values = method_mse(signal_array, scales, m, r, fuzzy, method, delta, distance_type, num_matrices, num_rows, num_cols, mod, m_espacial, dim_cubo);
+    double* entropy_values = method_mse(signal_array, scales, m, r, fuzzy, method, delta, distance_type, num_matrices, num_rows, num_cols, mod, m_espacial, dim_cubo, n_threads);
     for (int i = 0; i < scales; i++) {
         printf("%f \n", entropy_values[i]);
     }
