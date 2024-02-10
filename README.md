@@ -2,16 +2,20 @@
 
 ## Step 1: Clone repo.
 
+From a desired directory, do this:
+
 ```console
 git clone https://github.com/bcerdam/mse_id.git
 cd mse_id
-pip3 install -v -e . 
+python3 -m venv env
+source ./env/bin/activate
+pip install -v -e . 
 ```
 
 ## Step 2: Install requirements.
 
 ```console
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Step 3: Compile C code.
