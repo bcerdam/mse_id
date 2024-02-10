@@ -11,7 +11,7 @@ pip3 install -v -e .
 ## Step 2: Install requirements.
 
 ```console
-pip install requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Step 3: Compile C code.
