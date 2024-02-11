@@ -31,7 +31,7 @@ clang -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/opt/homebrew/Cellar/li
 
 #### gcc
 ```console
-gcc -o core_c/mse_1d/executables/mse_1d core_c/mse_1d/scripts/mse_1d.c core_c/mse_1d/scripts/read_csv.c core_c/mse_1d/scripts/signal_std.c core_c/mse_1d/scripts/utils.c  -lm -Icore_c/mse_1d/headers && \
+gcc -o core_c/mse_1d/executables/mse_1d_p core_c/mse_1d/scripts/mse_1d.c core_c/mse_1d/scripts/read_csv.c core_c/mse_1d/scripts/signal_std.c core_c/mse_1d/scripts/utils.c  -lm -Icore_c/mse_1d/headers && \
 gcc -o core_c/mse_2d/executables/mse_2d_p core_c/mse_2d/scripts/mse_2d.c core_c/mse_2d/scripts/read_csv.c core_c/mse_2d/scripts/utils.c  -lm -Icore_c/mse_2d/headers && \
 gcc -o core_c/mse_3d/executables/mse_3d_p core_c/mse_3d/scripts/mse_3d.c core_c/mse_3d/scripts/read_csv.c core_c/mse_3d/scripts/signal_std.c core_c/mse_3d/scripts/utils.c -lm -fopenmp -Icore_c/mse_3d/headers
 ```
