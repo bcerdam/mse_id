@@ -36,3 +36,20 @@ if __name__ == "__main__":
 
     # Submit jobs
     submit_jobs(folder_path)
+
+'''
+1. Set up 3 local folders:
+    - Folder containing csv's.
+    - Folder containing job.sh's: create_job_scripts()
+    - Folder for resulting out's
+    
+2. Set up 3 remote folders:
+    - Folder to contain csv's
+    - Folder to contain job.sh's
+    - Folder for resulting out's
+
+3. Upload folder containing csv's to server: upload_folder_to_server()
+4. Upload folder containing job.sh's: upload_folder_to_server()
+5. SBATCH all job.sh's: submit_jobs.py
+6. Download resulting out's: download_folder_from_server()
+'''
