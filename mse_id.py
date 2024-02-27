@@ -31,9 +31,8 @@ def mse_1d(input, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_dis
     mse_values_1d = mse_1d_f.mse_1d(input, scales, m, r, fuzzy, method, delta, distance_type, m_distance, std_type, dim, n_threads, status)
     return mse_values_1d
 
-white_noise_1d = np.random.random((10000, 1))
-mse_values_1d = mse_1d(input=white_noise_1d, scales=20, m=2, r=0.2, fuzzy=True, method='RCMSE', n_threads=8)
-print(f'mse_1d: {mse_values_1d}')
+# white_noise_1d = np.random.random((10000, 1))
+# mse_values_1d = mse_1d(input=white_noise_1d, scales=20, m=2, r=0.2, fuzzy=True, method='RCMSE', n_threads=8)
 # utils_id.plot_arrays(mse_values_1d)
 
 '''
