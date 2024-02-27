@@ -49,7 +49,8 @@ if __name__ == "__main__":
     - Folder for resulting out's
 
 3. Upload folder containing csv's to server: upload_folder_to_server()
-4. Upload folder containing job.sh's: upload_folder_to_server()
-5. SBATCH all job.sh's: submit_jobs.py
-6. Download resulting out's: download_folder_from_server()
+4. Create job.sh's: create_job_scripts()
+5. Upload folder containing job.sh's: upload_folder_to_server()
+6. SBATCH all job.sh's: submit_jobs.py
+7. Download resulting out's: download_folder_from_server()
 '''

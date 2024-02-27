@@ -59,6 +59,11 @@ def mse_3d(input, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_dis
 # mse_values_3d = mse_3d(input=white_noise_3d, scales=20, m=2, r=0.2, fuzzy=True, method='RCMSE', n_threads=8)
 # utils_id.plot_arrays(mse_values_3d)
 
+'''
+Common parameters:
+{'scales':20, 'm':2, 'r':0.2, 'fuzzy':True, 'method':'RCMSE', 'n_threads':8, 'delta':0.9, 'mod':True, 'n_threads':64}
+'''
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Calculate MSE values.')
 
