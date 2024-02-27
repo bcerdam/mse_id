@@ -54,6 +54,7 @@ def mse_3d(input, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_dis
     mse_values_3d = mse_3d_f.mse_3d(input, scales, m, r, fuzzy, method, delta, distance_type, m_distance, sampleo, std_type, mod, m_espacial, dim_cubo, shape, n_threads, status)
     return mse_values_3d
 
-# white_noise_3d = np.random.random((10, 10, 100))
-# mse_values_3d = mse_3d(input=white_noise_3d, scales=20, m=2, r=0.2, fuzzy=True, method='RCMSE', n_threads=8)
+white_noise_3d = np.random.random((10, 10, 100))
+mse_values_3d = mse_3d(input=white_noise_3d, scales=20, m=2, r=0.2, fuzzy=True, method='RCMSE', n_threads=8)
+print(mse_values_3d)
 # utils_id.plot_arrays(mse_values_3d)
