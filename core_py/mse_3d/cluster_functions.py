@@ -43,8 +43,6 @@ upload_folder_to_server(): Uploads CONTENT of local folder to a given path (fold
     - local_folder: Path of the local folder that has the CONTENT to upload.
     - remote_path: Path of folder where to upload the CONTENTS on the cluster.
 '''
-
-
 def upload_folder_to_server(username, ssh_path, password, local_folder, remote_path):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -77,3 +75,53 @@ def upload_folder_to_server(username, ssh_path, password, local_folder, remote_p
         print(f"Folder '{local_folder}' uploaded to '{remote_path}' on the cluster")
     except Exception as e:
         print(f"Error: {e}")
+
+'''
+create_job_scripts(): Creates job.sh for csv's on a given path.
+    - csv_folder: s.e
+    - output_folder: s.e
+    - cluster_in_path: Path of where the cluster reads the .csv's
+    - cluster_out_path: Path where the cluster saves the .out file of the job
+    - ntasks: number of threads for job
+    - parameters: dictionary with keyword arguments for mse_3d().
+'''
+def create_job_scripts(csv_folder, output_folder, cluster_in_path, cluster_out_path, ntasks, parameters={}):
+    # List all CSV files in the folder
+    csv_files = [file for file in os.listdir(csv_folder) if file.endswith('.csv')]
+
+    # Iterate through each CSV file
+    for csv_file in csv_files:
+        # Extract the file name without the extension
+        file_name = os.path.splitext(csv_file)[0]
+
+        # Define the output name for the log file
+        output_name = file_name + ".out"
+
+        # Construct the parameter string
+        param_str = ' '.join([f"--{key}={value}" for key, value in parameters.items()])
+
+        # Define the content of the job script
+        script_content = f'''#!/bin/bash
+
+# Nombre del trabajo
+#SBATCH --job-name={'mse_id'}
+
+# Archivo de salida
+#SBATCH --output={os.path.join(cluster_out_path, output_name)}
+
+# Cola de trabajo
+#SBATCH --partition=512x1024
+
+# Solicitud de cpus
+#SBATCH --ntasks={ntasks}
+#SBATCH --cpus-per-task=1
+
+python3 /home3/bcmardini/mse_id/mse_id.py {os.path.join(cluster_in_path, csv_file)} {param_str}
+'''
+
+        # Define the path for the job script
+        job_script_path = os.path.join(output_folder, f"{file_name}.sh")
+
+        # Write the content to the job script file
+        with open(job_script_path, 'w') as f:
+            f.write(script_content)
