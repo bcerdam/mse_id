@@ -11,7 +11,7 @@ parameters:
     - Same from mse_2d.
 '''
 def run_c_program(csv_path, scales, rows, cols, m, r, delta=0.7, fuzzy=False, distance_type=0, n_threads=32):
-    command = [os.path.join(os.path.dirname(os.getcwd()), 'MSE_id/core_c/mse_2d', 'executables', 'mse_2d_p'), csv_path, str(scales), str(rows), str(cols), str(m), str(r), str(delta), str(fuzzy), str(distance_type), str(n_threads)]
+    command = [os.path.join(os.path.dirname(os.getcwd()), 'mse_id/core_c/mse_2d', 'executables', 'mse_2d_p'), csv_path, str(scales), str(rows), str(cols), str(m), str(r), str(delta), str(fuzzy), str(distance_type), str(n_threads)]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').strip()
     n_values = list(output.split())

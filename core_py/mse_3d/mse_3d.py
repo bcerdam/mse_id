@@ -11,7 +11,7 @@ parameters:
 '''
 def run_c_program(input, scales, m, r, fuzzy, method, delta=0.7, distance_type=0, m_distance=2, sampleo=1, std_type=1, mod=False, m_espacial=1, dim_cubo=1, n_threads=32):
     info = backbone.info_matriz(input)
-    command = [os.path.join(os.path.dirname(os.getcwd()), 'MSE_id/core_c/mse_3d', 'executables', 'mse_3d_p'), input, str(scales), str(m), str(r), str(fuzzy), str(method),
+    command = [os.path.join(os.path.dirname(os.getcwd()), 'mse_id/core_c/mse_3d', 'executables', 'mse_3d_p'), input, str(scales), str(m), str(r), str(fuzzy), str(method),
                str(delta), str(distance_type), str(m_distance), str(sampleo), str(info[0]), str(info[1]), str(info[2]), str(std_type), str(mod), str(m_espacial), str(dim_cubo), str(n_threads)]
     result = subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
     n_values = list(result.split())
