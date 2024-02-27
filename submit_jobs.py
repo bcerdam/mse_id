@@ -2,6 +2,10 @@ import os
 import sys
 import subprocess
 
+'''
+def submit_jobs(folder_path):
+    - folder_path: folder of job.sh's
+'''
 def submit_jobs(folder_path):
     # List all files in the folder
     files = os.listdir(folder_path)

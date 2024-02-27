@@ -7,7 +7,7 @@ download_folder_from_server(): Downloads contents from a given folder in PUC clu
     - ssh_path: Self explanatory
     - password: Self explanatory
     - remote_folder: Path of folder on the cluster.
-    - local_path: Path where to store it.
+    - local_path: Path where to store folder (DO not include folder on local path).
 '''
 def download_folder_from_server(username, ssh_path, password, remote_folder, local_path):
     ssh_client = paramiko.SSHClient()
