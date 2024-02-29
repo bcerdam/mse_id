@@ -41,7 +41,7 @@ if __name__ == "__main__":
 1. Set up 3 local folders:
     - Folder containing csv's.
     - Folder containing job.sh's: create_job_scripts()
-    - Folder for resulting out's
+    - Folder for resulting out's (Not necessary, download_folder_from_server() creates it)
     
 2. Set up 3 remote folders:
     - Folder to contain csv's

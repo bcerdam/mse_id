@@ -93,7 +93,9 @@ def main():
     mse_values = mse_3d(args.input, args.scales, args.m, args.r, args.fuzzy, args.method, args.delta,
                                       args.distance_type, args.m_distance, args.sampleo, args.std_type, args.mod,
                                       args.m_espacial, args.dim_cubo, tuple(args.shape), args.n_threads, args.status)
-    print(mse_values)
+
+    for value in mse_values[0][1]:
+        print(value)
 
 if __name__ == "__main__":
     main()
