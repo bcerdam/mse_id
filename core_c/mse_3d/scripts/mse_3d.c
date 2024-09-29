@@ -206,6 +206,8 @@ int main(int argc, char* argv[]) {
     int m_espacial = atoi(argv[16]);
     int dim_cubo = atoi(argv[17]);
     int n_threads = atoi(argv[18]);
+    int m_temp = atoi(argv[19]);
+    int plus_one = atoi(argv[20]);
 
     // Info relevante de signal
 
@@ -222,7 +224,7 @@ int main(int argc, char* argv[]) {
 
     // Desviacion estandar de signal
     if(std_type == 1){
-        double signal_std = distance_m(signal_array, m_distance, num_rows, num_cols, num_matrices, distance_type, sampleo);
+        double signal_std = distance_m(signal_array, m_distance, num_rows, num_cols, num_matrices, distance_type, sampleo, m_temp, plus_one);
         r *= signal_std;
     }
     else{
